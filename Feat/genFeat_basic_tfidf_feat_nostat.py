@@ -1,8 +1,7 @@
 
 """
 __file__
-
-    genFeat_basic_tfidf_feat.py
+    genFeat_basic_tfidf_feat_nostat.py
 
 __description__
 
@@ -31,6 +30,7 @@ import numpy as np
 import pandas as pd
 from copy import copy
 from scipy.sparse import vstack
+from scipy import sparse
 from nlp_utils import getTFV, getBOW
 from feat_utils import get_sample_indices_by_relevance, dump_feat_name
 from sklearn.manifold import TSNE
@@ -47,9 +47,9 @@ from numpy import dot
 ## Helper function ##
 #####################
 
+'''
 def norm(x):
     return np.sqrt(np.dot(x, x.T))
-
 ## compute cosine similarity
 def cosine_sim(a,b):
     denominator = norm(a)*norm(b)
@@ -57,6 +57,16 @@ def cosine_sim(a,b):
         cos_sim = 0
     else:
         cos_sim = dot(a, b.T)/denominator
+    return cos_sim
+'''
+def norm_matrix_row(x):
+    return np.sqrt(np.sum(x.multiply(x), axis=1))
+
+def cosine_similarity(a, b):
+    cos_sim = np.zeros((a.shape[0],1))
+    denominator = np.multiply(norm_matrix_row(a), norm_matrix_row(b))
+    non_zero_norm_ind = denominator.nonzero()
+    cos_sim[non_zero_norm_ind] = np.sum(a.multiply(b), axis=1)[non_zero_norm_ind]/denominator[non_zero_norm_ind]   
     return cos_sim
 
 
@@ -223,21 +233,17 @@ def extract_basic_vec_cosine_sim_feat_testing(path, mode, feat_names):
     #####################
     ## cosine sim feat ##
     #####################
-    for i in range(len(feat_names)-1):
-        for j in range(i+1,len(feat_names)):
-            print "generate common %s cosine sim feat for %s %s and %s" % (vec_type, mode, feat_names[i], feat_names[j])
-            for mod in [mode]:
-                with open("%s/%s.%s.feat.pkl" % (path, mod, feat_names[i]), "rb") as f:
-                    target_vec = cPickle.load(f)
-                with open("%s/%s.%s.feat.pkl" % (path, mod, feat_names[j]), "rb") as f:
-                    obs_vec = cPickle.load(f)
-                sim = np.array([cosine_sim(target_vec[k], obs_vec[k]) for k in range(target_vec.shape[0])])[:,np.newaxis]
-                ## dump feat
-                with open("%s/%s.%s_%s_%s_cosine_sim.feat.pkl" % (path, mod, feat_names[i], feat_names[j], vec_type), "wb") as f:
-                    cPickle.dump(sim, f, -1)
+    with open("%s/%s.%s.feat.pkl" % (path, mode, feat_names[0]), "rb") as f:
+        target_vec = cPickle.load(f)
+    with open("%s/%s.%s.feat.pkl" % (path, mode, feat_names[1]), "rb") as f:
+        obs_vec = cPickle.load(f)
+    sim = cosine_similarity(target_vec, obs_vec)
+    ## dump feat
+    with open("%s/%s.%s_%s_%s_cosine_sim.feat.pkl" % (path, mode, feat_names[0], feat_names[1], vec_type), "wb") as f:
+        cPickle.dump(sim, f, -1)
     return
 
-def extract_common_svd_feat_testing(path, dfTest, mode, feat_name, n_components, svd):    
+def extract_common_svd_feat_testing(path, mode, feat_name, n_components, svd):    
     ##################
     ## SVD features ##
     ##################
@@ -255,19 +261,20 @@ def extract_common_svd_cosine_sim_feat_testing(path, mode, feat_names, n_compone
     #####################
     ## cosine sim feat ##
     #####################
-    #save_vec_path = "%s/vectorizer_train" % (path)
-    for i in range(len(feat_names)-1):
-        for j in range(i+1,len(feat_names)):
-            print "generate common %s-svd%d cosine sim feat for %s %s and %s" % (vec_type, n_components, mode, feat_names[i], feat_names[j])
-            for mod in [mode]:
-                with open("%s/%s.%s_common_svd%d.feat.pkl" % (path, mod, feat_names[i], n_components), "rb") as f:
-                    target_vec = cPickle.load(f)
-                with open("%s/%s.%s_common_svd%d.feat.pkl" % (path, mod, feat_names[j], n_components), "rb") as f:
-                    obs_vec = cPickle.load(f)
-                sim = np.array([cosine_sim(target_vec[k], obs_vec[k]) for k in range(target_vec.shape[0])])[:,np.newaxis]
-                ## dump feat
-                with open("%s/%s.%s_%s_%s_common_svd%d_cosine_sim.feat.pkl" % (path, mod, feat_names[i], feat_names[j], vec_type, n_components), "wb") as f:
-                    cPickle.dump(sim, f, -1)
+    print "generate common %s-svd%d cosine sim feat for %s %s and %s" % (vec_type, n_components, mode, feat_names[0], feat_names[1])
+    with open("%s/%s.%s_common_svd%d.feat.pkl" % (path, mode, feat_names[0], n_components), "rb") as f:
+        target_vec = cPickle.load(f)
+    with open("%s/%s.%s_common_svd%d.feat.pkl" % (path, mode, feat_names[1], n_components), "rb") as f:
+        obs_vec = cPickle.load(f)
+    target_vec = sparse.csr_matrix(target_vec)
+    obs_vec = sparse.csr_matrix(obs_vec)
+    sim = cosine_similarity(target_vec, obs_vec)
+    ## dump feat
+    with open("%s/%s.%s_%s_%s_common_svd%d_cosine_sim.feat_new.pkl" % (path, mode, feat_names[0], feat_names[1], vec_type, n_components), "wb") as f:
+        cPickle.dump(sim, f, -1)
+    #with open("%s/%s.%s_%s_%s_common_svd%d_cosine_sim.feat.pkl" % (path, mode, feat_names[0], feat_names[1], vec_type, n_components), "rb") as f:
+    #    sim_old = cPickle.load(f)
+    #print np.sum(np.abs(sim-sim_old))
     return
 
 def extract_individual_svd_feat_testing(path, dfTest, mode, feat_names, column_names):        
@@ -514,6 +521,7 @@ if __name__ == "__main__":
            print "*** Processing vector: %s" % vec_type
            feat_names = [ "question1", "question2" ]
            feat_names = [ name+"_%s_%s_vocabulary" % (vec_type, vocabulary_type) for name in feat_names ]
+           
            for feat_name,column_name in zip(feat_names, column_names):
                vec = load_basic_vectorizer(path, feat_name, column_name)
                for i in Ntest:
@@ -538,7 +546,7 @@ if __name__ == "__main__":
                        extract_common_svd_feat_testing(path, subset_dfTest, mode, feat_name, n_components, svd_vec)
                        gc.collect()
                        #extract_individual_svd_feat_testing(path, subset_dfTest, mode, feat_names, column_names)
-
+           
            #cosine-similarity
            print ("------------------------------------------")
            print "generate cosine-similarity"
