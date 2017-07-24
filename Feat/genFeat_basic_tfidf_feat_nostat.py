@@ -521,7 +521,7 @@ if __name__ == "__main__":
            print "*** Processing vector: %s" % vec_type
            feat_names = [ "question1", "question2" ]
            feat_names = [ name+"_%s_%s_vocabulary" % (vec_type, vocabulary_type) for name in feat_names ]
-           
+           '''
            for feat_name,column_name in zip(feat_names, column_names):
                vec = load_basic_vectorizer(path, feat_name, column_name)
                for i in Ntest:
@@ -530,7 +530,7 @@ if __name__ == "__main__":
                        subset_dfTest = cPickle.load(f)
                    mode = "test.%s"%str(i)
                    extract_basic_vec_feat_testing(path, subset_dfTest, mode, feat_name, column_name, vec)
-
+           ''' 
 
            print ("------------------------------------------")
            print "**svd features"
@@ -543,7 +543,7 @@ if __name__ == "__main__":
                        with open("%s.%s.pkl"%(config.processed_test_data_path,str(i)), "rb") as f:
                            subset_dfTest = cPickle.load(f)
                        mode = "test.%s"%str(i)
-                       extract_common_svd_feat_testing(path, subset_dfTest, mode, feat_name, n_components, svd_vec)
+                       extract_common_svd_feat_testing(path, mode, feat_name, n_components, svd_vec)
                        gc.collect()
                        #extract_individual_svd_feat_testing(path, subset_dfTest, mode, feat_names, column_names)
            
