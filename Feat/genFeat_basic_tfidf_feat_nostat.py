@@ -191,7 +191,7 @@ def load_common_svd_transformer(path, feat_names, n_components):
             X_vec_all_train = X_vec_train
         else:
             X_vec_all_train = vstack([X_vec_all_train, X_vec_train])
-    X_vec_all_train = sparse.csr_matrix(X_vec_all_train)
+
    # for n_components in svd_n_components:
     #print "common svd %d components:" % n_components
     
@@ -250,10 +250,9 @@ def extract_common_svd_feat_testing(path, mode, feat_name, n_components, svd):
     ##################
     ## we fit svd use stacked question1/question2 bow/tfidf for further cosine simalirity computation
     ## load bow/tfidf (for less coding...)
-    print "generate common %s-svd%d feat for %s %s" % (vec_type, n_components, mode, feat_name)
+    print "generate common %s-svd%d feat for %s" % (vec_type, n_components, feat_name)
     with open("%s/%s.%s.feat.pkl" % (path, mode, feat_name), "rb") as f:
         X_vec_test = cPickle.load(f)
-    X_vec_test = sparse.csr_matrix(X_vec_test)
     X_svd_test = svd.transform(X_vec_test)
     with open("%s/%s.%s_common_svd%d.feat.pkl" % (path, mode, feat_name, n_components), "wb") as f:
         cPickle.dump(X_svd_test, f, -1)
@@ -519,12 +518,10 @@ if __name__ == "__main__":
 
        path = "%s/All" % config.feat_folder
 
-       #for vec_type in vec_types:
-       for vec_type in ["tfidf"]:
+       for vec_type in vec_types:
            print "*** Processing vector: %s" % vec_type
            feat_names = [ "question1", "question2" ]
            feat_names = [ name+"_%s_%s_vocabulary" % (vec_type, vocabulary_type) for name in feat_names ]
-           
            for feat_name,column_name in zip(feat_names, column_names):
                vec = load_basic_vectorizer(path, feat_name, column_name)
                for i in Ntest:
@@ -535,9 +532,8 @@ if __name__ == "__main__":
                    extract_basic_vec_feat_testing(path, subset_dfTest, mode, feat_name, column_name, vec)
 
            print ("------------------------------------------")
-           print vec_type, "**svd features"
-           #for n_components in svd_n_components:
-           for n_components in [100]:
+           print "**svd features"
+           for n_components in svd_n_components:
                print "## n_components:", n_components
                svd_vec = load_common_svd_transformer(path, feat_names, n_components)
                #svd_individual_vec =  load_individual_svd_transformer()
@@ -549,7 +545,7 @@ if __name__ == "__main__":
                        extract_common_svd_feat_testing(path, mode, feat_name, n_components, svd_vec)
                        gc.collect()
                        #extract_individual_svd_feat_testing(path, subset_dfTest, mode, feat_names, column_names)
-
+           
            #cosine-similarity
            print ("------------------------------------------")
            print "generate cosine-similarity"
