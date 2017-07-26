@@ -20,21 +20,12 @@ import cPickle
 from sklearn.cross_validation import StratifiedKFold
 sys.path.append("../")
 from param_config import config
-import subprocess, os, sys
+#import subprocess, os, sys
 
 
 if __name__ == "__main__":
 
 
-#   logname ="./log_output/" + sys.argv[0] + "_log.txt"    
-# Unbuffer output
-    '''
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
-    
-    tee = subprocess.Popen(["tee", logname], stdin=subprocess.PIPE)
-    os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
-    os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
-    '''
 
     ## load data
     with open(config.processed_train_data_path, "rb") as f:
@@ -55,8 +46,4 @@ if __name__ == "__main__":
                 print(validInd[:10])
         with open("%s/stratifiedKFold.%s.pkl" % (config.data_folder, stratified_label), "wb") as f:
             cPickle.dump(skf, f, -1)
-
-#    os.spawnve("P_WAIT", "/bin/ls", ["/bin/ls"], {})
-#    os.execve("/bin/ls", ["/bin/ls"], os.environ)
-
 

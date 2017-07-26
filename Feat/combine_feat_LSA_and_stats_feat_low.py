@@ -2,7 +2,7 @@
 """
 __file__
     
-    combine_feat_[LSA_and_stats_feat_Jun09]_[Low].py
+    combine_feat_LSA_and_stats_feat_low.py
 
 __description__
 
@@ -237,8 +237,8 @@ if __name__ == "__main__":
         # ('question2_tfidf_common_vocabulary_common_svd100_cosine_sim_stats_feat_by_relevance', SimpleTransform()),
         # ('question2_tfidf_common_vocabulary_common_svd100_cosine_sim_stats_feat_by_question1_relevance', SimpleTransform()),
         # ('question1_tfidf_common_vocabulary_question2_tfidf_common_vocabulary_tfidf_common_svd100_cosine_sim', SimpleTransform()),
-        ('question1_tfidf_common_vocabulary_individual_svd100', SimpleTransform()),
-        ('question2_tfidf_common_vocabulary_individual_svd100', SimpleTransform()),
+        #('question1_tfidf_common_vocabulary_individual_svd100', SimpleTransform()),
+        #('question2_tfidf_common_vocabulary_individual_svd100', SimpleTransform()),
         # ('question2_tfidf_common_vocabulary_individual_svd100_cosine_sim_stats_feat_by_relevance', SimpleTransform()),
         # ('question2_tfidf_common_vocabulary_individual_svd100_cosine_sim_stats_feat_by_question1_relevance', SimpleTransform()),
 

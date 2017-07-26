@@ -8,23 +8,19 @@ __description__
 
     This file generates the following features for each run and fold, and for the entire training and testing set.
 
-        1. Basic Counting Features
+        1. Interrogative Words Features
             
-            1. Count of n-gram in query/title/description
+            1. Count of interrogative words
 
-            2. Count & Ratio of Digit in query/title/description
+        2. Auxiliary Verbs Features
 
-            3. Count & Ratio of Unique n-gram in query/title/description
+            1. Count of auxiliary verbs
 
-        2. Intersect Counting Features
+        3. Question Marks
 
-            1. Count & Ratio of a's n-gram in b's n-gram
+            1. Count of question marks
 
-        3. Intersect Position Features
-
-            1. Statistics of Positions of a's n-gram in b's n-gram
-
-            2. Statistics of Normalized Positions of a's n-gram in b's n-gram
+            2. Position/normalized position of the first question mark
 
 __author__
 
@@ -193,7 +189,7 @@ if __name__ == "__main__":
        path = "%s/All" % config.feat_folder
        for feat_name in feat_names:
            X_train = x[feat_name].values
-           print X_train.shape
+           #print X_train.shape
            with open("%s/train.%s.feat.pkl" % (path,feat_name), "wb") as f:
                print "%s/train.%s.feat.pkl" % (path, feat_name)
                cPickle.dump(X_train, f, -1)
@@ -261,7 +257,7 @@ if __name__ == "__main__":
            print feat_names   
            for feat_name in feat_names:
                X_test = xx[feat_name].values
-               print X_test.shape[0]
+               #print X_test.shape[0]
                with open("%s/test.%s.%s.feat.pkl" % (path, str(i),feat_name), "wb") as f:
                    print "%s/test.%s.%s.feat.pkl" % (path, feat_name,str(i))
                    cPickle.dump(X_test, f, -1)

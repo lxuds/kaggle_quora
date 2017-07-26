@@ -10,12 +10,6 @@ __description__
 
         1. training and validation/testing data
 
-        2. sample weight
-
-        3. cdf of the median_relevance
-        
-        4. the group info for pairwise ranking in XGBoost
-
 __author__
 
     Lei Xu < leixuast@gmail.com >
@@ -58,13 +52,6 @@ if __name__ == "__main__":
             if not os.path.exists(path):
                 os.makedirs(path)
 
-            #############################    
-            ## get and dump group info ##
-            #############################
-            np.savetxt("%s/train.feat.group" % path, [len(trainInd)], fmt="%d")
-            np.savetxt("%s/valid.feat.group" % path, [len(validInd)], fmt="%d")
-            
-               
             #############################
             ## dump all the other info ##
             #############################
@@ -77,10 +64,6 @@ if __name__ == "__main__":
     path = "%s/All" % (config.feat_folder)
     if not os.path.exists(path):
         os.makedirs(path)
-    ## weight
-   
-    ## group
-    np.savetxt("%s/All/train.feat.group" % (config.feat_folder), [dfTrain.shape[0]], fmt="%d")
     ## info        
     dfTrain["is_duplicate"].to_csv("%s/All/train.info" % (config.feat_folder), index=False, header=True,encoding='utf-8')
 
@@ -94,6 +77,5 @@ if __name__ == "__main__":
         with open("%s.%s.pkl"%(config.processed_test_data_path,str(i)), "rb") as f:
             dfTest = cPickle.load(f) 
             dfTest[["is_duplicate","id"]].to_csv("%s/All/test.%s.info" % (config.feat_folder, i), index=False, header=True,encoding='utf-8')
-            np.savetxt("%s/All/test.feat.group" % (config.feat_folder), [dfTest.shape[0]], fmt="%d")
 
     print("All Done.")

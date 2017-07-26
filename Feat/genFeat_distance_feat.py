@@ -8,22 +8,9 @@ __description__
 
     This file generates the following features for each run and fold, and for the entire training and testing set.
 
-        1. jaccard coefficient/dice distance between query & title, query & description, title & description pairs
-            - just plain jaccard coefficient/dice distance
+        1. jaccard coefficient/dice distance between 
+            - just plain jaccard coefficient/dice distance between question1 and question2
             - compute for unigram/bigram/trigram
-
-        2. jaccard coefficient/dice distance stats features for title/description
-            - computation is carried out with regard to a pool of samples grouped by:
-                - median_relevance (#4)
-                - query (qid) & median_relevance (#4)
-            - jaccard coefficient/dice distance for the following pairs are computed for each sample
-                - sample title        vs.  pooled sample titles
-                - sample description  vs.  pooled sample descriptions
-                Note that in the pool samples, we exclude the current sample being considered.
-            - stats features include quantiles of cosine similarity and others defined in the variable "stats_func", e.g.,
-                - mean value
-                - standard deviation (std)
-                - more can be added, e.g., moment features etc
 
 __author__
 

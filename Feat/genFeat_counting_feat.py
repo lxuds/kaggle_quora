@@ -10,11 +10,11 @@ __description__
 
         1. Basic Counting Features
             
-            1. Count of n-gram in query/title/description
+            1. Count of n-gram in question1/question2
 
-            2. Count & Ratio of Digit in query/title/description
+            2. Count & Ratio of Digit in question1/question2
 
-            3. Count & Ratio of Unique n-gram in query/title/description
+            3. Count & Ratio of Unique n-gram in question1/question2
 
         2. Intersect Counting Features
 
