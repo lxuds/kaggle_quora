@@ -4,11 +4,11 @@
 """
 __file__
 
-    preprocess.py
+    preprocess_train.py
 
 __description__
 
-    This file preprocesses data.
+    This file preprocesses training sample data.
 
 __author__
 

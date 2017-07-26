@@ -4,11 +4,11 @@
 """
 __file__
 
-    preprocess.py
+    preprocess_test.py
 
 __description__
 
-    This file preprocesses data.
+    This file preprocesses testing sample data.
 
 __author__
 
@@ -39,10 +39,10 @@ dfTest = pd.read_csv(config.original_test_data_path,encoding='utf8').fillna("")
 
 # number of test samples
 num_test =  dfTest.shape[0]
-
 print  num_test
 
 print("Done.")
+
 
 ######################
 ## Pre-process Data ##
@@ -79,8 +79,6 @@ for i in range(n_part):
 
     subset_dfTest.to_csv('./check_csv/check.test.%s.csv'%(str(i)) , index=False, encoding='utf-8')
 print("Done.")
-
-
 
 
 ###############

@@ -2,7 +2,7 @@
 """
 __file__
     
-    combine_feat_[LSA_svd150_and_Jaccard_coef_May19]_[Low].py
+    combine_feat_LSA_svd150_and_Jaccard_coef_low.py
 
 __description__
 
@@ -17,7 +17,6 @@ __author__
 import sys
 sys.path.append("../")
 from param_config import config
-#from gen_info import gen_info
 from combine_feat import combine_feat, SimpleTransform
 
             
@@ -230,8 +229,8 @@ if __name__ == "__main__":
         # ('question2_tfidf_common_vocabulary_common_svd150_cosine_sim_stats_feat_by_relevance', SimpleTransform()),
         # ('question2_tfidf_common_vocabulary_common_svd150_cosine_sim_stats_feat_by_question1_relevance', SimpleTransform()),
         ('question1_tfidf_common_vocabulary_question2_tfidf_common_vocabulary_tfidf_common_svd150_cosine_sim', SimpleTransform()),
-        ('question1_tfidf_common_vocabulary_individual_svd150', SimpleTransform()),
-        ('question2_tfidf_common_vocabulary_individual_svd150', SimpleTransform()),
+        #('question1_tfidf_common_vocabulary_individual_svd150', SimpleTransform()),
+        #('question2_tfidf_common_vocabulary_individual_svd150', SimpleTransform()),
         #('question2_tfidf_common_vocabulary_individual_svd150_cosine_sim_stats_feat_by_relevance', SimpleTransform()),
 #        ('question2_tfidf_common_vocabulary_individual_svd150_cosine_sim_stats_feat_by_question1_relevance', SimpleTransform()),
 

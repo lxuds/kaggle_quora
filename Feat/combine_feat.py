@@ -209,7 +209,7 @@ def combine_feat(feat_names, feat_path_name, mode, subset_id=None):
                         X_test = np.hstack([X_test, x_test])
          
                 print("Combine {:>2}/{:>2} feat: {} ({}D)".format(i+1, len(feat_names), feat_name, x_train.shape[1]))
-                print "Feat dim: {}D".format(X_train.shape[1])
+                print "Feat dim: {}D".format(X_test.shape[1])
                 
             ## load label and dump feat
             # train

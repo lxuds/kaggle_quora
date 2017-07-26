@@ -14,7 +14,7 @@ __description__
 __author__
 
     Lei Xu < leixuast@gmail.com >
-
+    part of it was adapted from Chenglong Chen's Crowdflower project
 """
 import re
 import sys
@@ -253,17 +253,6 @@ def convert_kmbg_zero(text):
 
 def remove_comma_number(text):
     return re.sub(r'(?:(\d+?),)',r'\1', text)
-    '''
-    r=re.compile(r'\b[1-9][0-9,.]{0,}')
-    searchobj = r.search(text)
-    print searchobj.groups()
-    if searchobj:
-       print 'test'
-       numbers_no_comma = re.sub("[^\d\.]", "", searchobj.group())
-       text = r.sub(numbers_no_comma, text)
-    return text
-    '''
-
 
 def remove_punct(text, marks=None):
     """
@@ -314,26 +303,22 @@ def clean_text(l, drop_html_flag=False):
           l = drop_html(l)
        l = l.lower()
        l = fix_bad_unicode(l, normalization='NFC')
-#    l = ftfy.fix_text(l,normalization='NFC')
-#    l = transliterate_unicode(l)
-
    
        l = remove_accents(l, method='unicode')
        l = replace_currency_symbols(l)
        l = convert_currency_name(l)
     
-     #l = l.replace('-', ' ')
-    # remove comma in numbers
+       # remove comma in numbers
        l = remove_comma_number(l)
-    # convert currency symbols to words
-    #l = convert_currency_numbers(l)
-    # convert kmgb to 0
+       # convert currency symbols to words
+       #l = convert_currency_numbers(l)
+       # convert kmgb to 0
        l = convert_kmbg_zero(l)
-    # unpack contractions
+       # unpack contractions
        l = unpack_contractions(l)
        l = remove_punct(l,marks='()[];,:?\'\"!-')
        l = l.split(" ")
-        ## replace synonyms
+       ## replace synonyms
        l = replacer.replace(l)
        l = " ".join(l)
        l = am_pm_convert(l)

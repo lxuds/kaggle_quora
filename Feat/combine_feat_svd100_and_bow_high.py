@@ -2,13 +2,13 @@
 """
 __file__
     
-    combine_feat_[svd100_and_bow_May19]_[High].py
+    combine_feat_svd100_and_bow_high.py
 
 __description__
 
     This file generates one combination of feature set (High).
     Such features are used to generate the best single model with linear model, e.g., 
-        - XGBoost linear booster with MSE objective
+        - XGBoost linear booster 
         - Sklearn Ridge
 
 __author__
