@@ -47,18 +47,8 @@ from numpy import dot
 ## Helper function ##
 #####################
 
-'''
-def norm(x):
-    return np.sqrt(np.dot(x, x.T))
+
 ## compute cosine similarity
-def cosine_sim(a,b):
-    denominator = norm(a)*norm(b)
-    if not denominator:
-        cos_sim = 0
-    else:
-        cos_sim = dot(a, b.T)/denominator
-    return cos_sim
-'''
 def norm_matrix_row(x):
     return np.sqrt(np.sum(x.multiply(x), axis=1))
 
@@ -272,8 +262,9 @@ def extract_common_svd_cosine_sim_feat_testing(path, mode, feat_names, n_compone
     obs_vec = sparse.csr_matrix(obs_vec)
     sim = cosine_similarity(target_vec, obs_vec)
     ## dump feat
-    with open("%s/%s.%s_%s_%s_common_svd%d_cosine_sim.feat_new.pkl" % (path, mode, feat_names[0], feat_names[1], vec_type, n_components), "wb") as f:
+    with open("%s/%s.%s_%s_%s_common_svd%d_cosine_sim.feat.pkl" % (path, mode, feat_names[0], feat_names[1], vec_type, n_components), "wb") as f:
         cPickle.dump(sim, f, -1)
+   
     #with open("%s/%s.%s_%s_%s_common_svd%d_cosine_sim.feat.pkl" % (path, mode, feat_names[0], feat_names[1], vec_type, n_components), "rb") as f:
     #    sim_old = cPickle.load(f)
     #print np.sum(np.abs(sim-sim_old))
@@ -519,8 +510,8 @@ if __name__ == "__main__":
 
        path = "%s/All" % config.feat_folder
 
-       #for vec_type in vec_types:
-       for vec_type in ["tfidf"]:
+       for vec_type in vec_types:
+       #for vec_type in ["tfidf"]:
            print "*** Processing vector: %s" % vec_type
            feat_names = [ "question1", "question2" ]
            feat_names = [ name+"_%s_%s_vocabulary" % (vec_type, vocabulary_type) for name in feat_names ]
@@ -536,8 +527,8 @@ if __name__ == "__main__":
 
            print ("------------------------------------------")
            print vec_type, "**svd features"
-           #for n_components in svd_n_components:
-           for n_components in [100]:
+           for n_components in svd_n_components:
+           #for n_components in [100]:
                print "## n_components:", n_components
                svd_vec = load_common_svd_transformer(path, feat_names, n_components)
                #svd_individual_vec =  load_individual_svd_transformer()
@@ -549,7 +540,7 @@ if __name__ == "__main__":
                        extract_common_svd_feat_testing(path, mode, feat_name, n_components, svd_vec)
                        gc.collect()
                        #extract_individual_svd_feat_testing(path, subset_dfTest, mode, feat_names, column_names)
-
+           
            #cosine-similarity
            print ("------------------------------------------")
            print "generate cosine-similarity"
@@ -557,6 +548,7 @@ if __name__ == "__main__":
                mode = "test.%s"%str(i)
                extract_basic_vec_cosine_sim_feat_testing(path, mode, feat_names)
                for n_components in svd_n_components:
+               #for n_components in [150]:
                    extract_common_svd_cosine_sim_feat_testing(path, mode, feat_names, n_components)
 
            print ("----time elapsed----", str(timedelta(seconds=time.time() - start_time)))
