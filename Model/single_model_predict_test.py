@@ -59,7 +59,6 @@ def gen_prediction(param, feat_folder, feat_name, trial_counters, logloss_cv_mea
     save_path = "%s/All" % output_path
     info_path = "%s/All" % (config.feat_folder)
     info_test = pd.read_csv("%s/test.%s.info" % (info_path,subset))
-    #print info_test.columns
     id_test = info_test["id"]
     ## load feat
     X_test, labels_test = load_svmlight_file(feat_test_path)
@@ -168,10 +167,6 @@ if __name__ == "__main__":
     log_path = "%s/Log" % output_path
     #print log_path
     for feat_name, feat_folder in zip(feat_names, feat_folders):
-        #print "specified_models:", specified_models
-        #print "feat_name:", feat_name
-        #if not check_model(specified_models, feat_name):
-        #    continue
         if specified_models == feat_name: 
     
             print feat_name

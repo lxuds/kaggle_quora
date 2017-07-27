@@ -14,10 +14,7 @@ __author__
 
 """
 
-import sys
 import numpy as np
-sys.path.append("../")
-from param_config import config
 
 
 ## convert probability to class
