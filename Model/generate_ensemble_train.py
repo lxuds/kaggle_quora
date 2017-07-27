@@ -2,11 +2,11 @@
 """
 __file__
 
-    generate_ensemble_submission.py
+    generate_ensemble_train.py
 
 __description__
 
-    This file generates submission via ensemble selection.
+    This file read in model list and starts the ensemble selection.
 
 __author__
 
@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 from utils import *
 from ensemble_selection import *
-from model_library_config_tmp import feat_folders, feat_names
+from model_library_config import feat_folders, feat_names
 
 
 ##
@@ -46,12 +46,10 @@ for feat_name,id_size in zip(feat_names, id_sizes):
     log_file = "%s/Log/%s_hyperopt.log" % (model_folder, feat_name)
     try:
         dfLog = pd.read_csv(log_file)
-        #print dfLog.columns
         # dfLog.sort("logloss_mean", ascending=True, inplace=True)
         dfLog.sort_values(by="logloss_mean", ascending=True, inplace=True)
         ind = np.min([id_size, dfLog.shape[0]])
         ids = dfLog.iloc[:ind]["trial_counter"]
-        #print dfLog[:ind]
         model_list += ["%s_[Id@%d]" % (feat_name, id) for id in ids]
     except:
         pass

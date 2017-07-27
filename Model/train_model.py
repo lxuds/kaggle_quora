@@ -23,8 +23,6 @@ import pandas as pd
 import xgboost as xgb
 import time
 from datetime import timedelta
-
-
 from scipy.sparse import hstack
 ## sklearn
 from sklearn.base import BaseEstimator
@@ -38,25 +36,14 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import log_loss
-
 ## hyperopt
 from hyperopt import hp
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
-## keras
-'''
-from keras.models import Sequential
-from keras.layers.core import Dense, Dropout, Activation
-from keras.layers.normalization import BatchNormalization
-from keras.layers.advanced_activations import PReLU
-from keras.utils import np_utils, generic_utils
-'''
 ## cutomized module
 from model_library_config import feat_folders, feat_names, param_spaces, int_feat
 sys.path.append("../")
 from param_config import config
-#from ml_metrics import quadratic_weighted_logloss
-from utils import *
-
+from utils import proba2class
 from collections import Counter
 
 
@@ -64,14 +51,6 @@ from collections import Counter
 
 global trial_counter
 global log_handler
-
-
-## libfm
-libfm_exe = "../../libfm-1.40.windows/libfm.exe"
-
-## rgf
-call_exe = "../../rgf1.2/test/call_exe.pl"
-rgf_exe = "../../rgf1.2/bin/rgf.exe"
 
 output_path = "../../Output"
 
@@ -89,9 +68,6 @@ verbose_level = 1
 def find_majority(votes):
     vote_count = Counter(votes)
     top_two = vote_count.most_common(2)
-#    if len(top_two)>1 and top_two[0][1] == top_two[1][1]:
-#        # It is a tie
-#        return 0
     return top_two[0][0]
 
 
@@ -142,8 +118,6 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
     logloss_cv = np.zeros((config.n_runs, config.n_folds), dtype=float)
     for run in range(1,config.n_runs+1):
         for fold in range(1,config.n_folds+1):
-#    for run in [1]:
-#        for fold in [1]:
             rng = np.random.RandomState(2015 + 1000 * run + 10 * fold)
 
             #### all the path
@@ -179,7 +153,6 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
             Y_valid = labels_valid
             numTrain = X_train.shape[0]
             numValid = X_valid.shape[0]
-            #print numTrain, numValid, Y_valid.shape
             ##############
             ## Training ##
             ##############
@@ -206,10 +179,8 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
                 ## various models
                 if param["task"] in ["regression"]:
                     ## classification  xgboost
-#                    xgc = xgb.XGBClassifier(param)
                     clf = xgb.train(param, dtrain_base, param['num_round'], watchlist)
                     pred_proba = clf.predict(dvalid_base)
-#                    pred = [int(round(x)) for x in pred_]
 
                 elif param['task'] == "reg_skl_rf":
                     ## regression with sklearn random forest regressor
@@ -220,7 +191,6 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
                     clf.fit(X_train[index_base], labels_train[index_base])
                     pred = clf.predict(X_valid)
                     pred_proba = clf.predict_proba(X_valid)[:,1]
-                    #clf_probs = clf.predict_proba(X_test)
                    
 
                 elif param['task'] == "reg_skl_etr":
@@ -336,35 +306,19 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
 
     # feat
     feat_train_path = "%s/train.feat" % path
-    #feat_test_path = "%s/test.feat" % path
-    # raw prediction path (rank)
-    #raw_pred_test_path = "%s/test.raw.pred.%s_[Id@%d].csv" % (save_path, feat_name, trial_counter)
-    #rank_pred_test_path = "%s/test.pred.%s_[Id@%d].csv" % (save_path, feat_name, trial_counter)
-    # submission path (relevance as in [1,2,3,4])
-    #subm_path = "%s/test.pred.%s_[Id@%d]_[Mean%.6f]_[Std%.6f].csv" % (subm_path, feat_name, trial_counter, logloss_cv_mean, logloss_cv_std)
     # save trained model
     all_training_model_path = "%s/%s_[Id@%d].pkl" % (save_model_path, feat_name, trial_counter)
 
     #### load data
-    ## load feat
     X_train, labels_train = load_svmlight_file(feat_train_path)
-    #X_test, labels_test = load_svmlight_file(feat_test_path)
-    #if X_test.shape[1] < X_train.shape[1]:
-    #    X_test = hstack([X_test, np.zeros((X_test.shape[0], X_train.shape[1]-X_test.shape[1]))])
-    #elif X_test.shape[1] > X_train.shape[1]:
-    #    X_train = hstack([X_train, np.zeros((X_train.shape[0], X_test.shape[1]-X_train.shape[1]))])
     X_train = X_train.tocsr()
-    #X_test = X_test.tocsr()
     numTrain = X_train.shape[0]
-    #numTest = X_test.shape[0]
       
     ## bagging
     #preds_bagging = np.zeros((numTest, bagging_size), dtype=float)
     for n in range(bagging_size):
         if bootstrap_replacement:
             sampleSize = int(numTrain*bootstrap_ratio)
-            #index_meta = rng.randint(numTrain, size=sampleSize)
-            #index_base = [i for i in range(numTrain) if i not in index_meta]
             index_base = rng.randint(numTrain, size=sampleSize)
             index_meta = [i for i in range(numTrain) if i not in index_base]
         else:
@@ -373,7 +327,6 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
             index_meta = [i for i in range(numTrain) if randnum[i] >= bootstrap_ratio]
  
         if param.has_key("booster"):
-            #dtest = xgb.DMatrix(X_test, label=labels_test)
             dtrain = xgb.DMatrix(X_train[index_base], label=labels_train[index_base])
                 
             watchlist = []
@@ -383,7 +336,6 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
         ## train
         if param["task"] in ["regression"]:
             clf = xgb.train(param, dtrain, param['num_round'], watchlist)
-            #pred_proba = clf.predict(dtest)
 
 
         elif param['task'] == "reg_skl_rf":
@@ -393,7 +345,6 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
                                        n_jobs=param['n_jobs'],
                                        random_state=param['random_state'])
             clf.fit(X_train[index_base], labels_train[index_base])
-            #pred_proba = clf.predict_proba(X_test)[:,1]
 
         elif param['task'] == "reg_skl_etr":
             ## extra trees regressor
@@ -402,7 +353,6 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
                                       n_jobs=param['n_jobs'],
                                       random_state=param['random_state'])
             clf.fit(X_train[index_base], labels_train[index_base])
-            #pred_proba = clf.predict_proba(X_test)[:,1]
 
         elif param['task'] == "reg_skl_gbm":
             ## gradient boosting regressor
@@ -413,7 +363,6 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
                                             subsample=param['subsample'],
                                             random_state=param['random_state'])
             clf.fit(X_train.toarray()[index_base], labels_train[index_base])
-            #pred_proba = clf.predict_proba(X_test.toarray())[:,1]
 
 
 
@@ -422,59 +371,30 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
                                     C=param['C'], fit_intercept=True, intercept_scaling=1.0,
                                     class_weight='auto', random_state=param['random_state'])
             clf.fit(X_train[index_base], labels_train[index_base])
-            #pred_proba = lr.predict_proba(X_test)[:,1]
-            '''
-            w = np.asarray(range(1,numOfClass+1))
-            pred = pred * w[np.newaxis,:]
-            pred = np.sum(pred, axis=1)
-            '''
 
         elif param['task'] == "clf_skl_lr_l1":
             clf = LogisticRegression(penalty="l1", dual=True, tol=1e-5, solver ="liblinear",
                                     C=param['C'], fit_intercept=True, intercept_scaling=1.0,
                                     class_weight='auto', random_state=param['random_state'])
             clf.fit(X_train[index_base], labels_train[index_base])
-            #pred_proba = clf.predict_proba(X_test)[:,1]
 
         elif param['task'] == "reg_skl_svr":
             ## regression with sklearn support vector regression
-            #X_train, X_test = X_train.toarray(), X_test.toarray()
             X_train = X_train.toarray()
             scaler = StandardScaler()
             X_train[index_base] = scaler.fit_transform(X_train[index_base])
-            #X_test = scaler.transform(X_test)
             clf = SVC(C=param['C'], gamma=param['gamma'],
                                     degree=param['degree'], kernel=param['kernel'])
             clf.fit(X_train[index_base], labels_train[index_base])
-            #pred_proba = clf.predict_proba(X_test)[:,1]
 
         elif param['task'] == "reg_skl_ridge":
             clf = RidgeClassifier(alpha=param["alpha"], normalize=True)
             clf.fit(X_train[index_base], labels_train[index_base])
-            #pred_proba = clf.predict(X_test)
-        ## weighted averageing over different models
-        #pred_test = pred_proba
-        #preds_bagging[:,n] = pred_test
-    #pred_raw = np.mean(preds_bagging, axis=1)
-    #pred_class_bagging = proba2class(pred_raw)
     # save the retrained classifer result
     with open(all_training_model_path, "wb") as f:
         cPickle.dump(clf, f, -1)
     #no bagging used for retraining 
-    '''
-    ## write
-    output = pd.DataFrame({"id": id_test, "prediction": pred_raw})    
-    output.to_csv(raw_pred_test_path, index=False)
-
-    ## write
-    output = pd.DataFrame({"id": id_test, "prediction": pred_class_bagging})    
-    output.to_csv(rank_pred_test_path, index=False)
-
-    pred_score = pred_class_bagging
-    output = pd.DataFrame({"id": id_test, "prediction": pred_score})    
-    output.to_csv(subm_path, index=False)
-    '''
-        
+       
 
     print ("----time elapsed----\n", str(timedelta(seconds=time.time() - start_time)))
 

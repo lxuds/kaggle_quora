@@ -21,7 +21,6 @@ import numpy as np
 import pandas as pd
 import os
 from utils import getScore, getTestScore, proba2class
-#from ml_metrics import quadratic_weighted_logloss
 from hyperopt import fmin, tpe, hp, STATUS_OK, STATUS_FAIL, Trials
 sys.path.append("../")
 from param_config import config

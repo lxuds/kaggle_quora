@@ -2,11 +2,11 @@
 """
 __file__
 
-    predict_test.py
+    single_model_predict_test.py
 
 __description__
 
-    This file loads training results of various models, and makes predictions on testing sets
+    This file loads training results of models with various hyper-parameters, and makes predictions on testing sets
 
 __author__
 
@@ -14,6 +14,7 @@ __author__
 
 """
 
+import time
 import sys
 import csv
 import os
@@ -38,23 +39,13 @@ from sklearn.metrics import log_loss
 ## hyperopt
 from hyperopt import hp
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
-## keras
-'''
 from keras.models import Sequential
-from keras.layers.core import Dense, Dropout, Activation
-from keras.layers.normalization import BatchNormalization
-from keras.layers.advanced_activations import PReLU
-from keras.utils import np_utils, generic_utils
-'''
 ## cutomized module
 from model_library_config import feat_folders, feat_names, param_spaces, int_feat
 sys.path.append("../")
 from param_config import config
-#from ml_metrics import quadratic_weighted_logloss
-from utils import *
-
+from utils import proba2class
 from collections import Counter
-import time
 from datetime import timedelta
 
 
@@ -161,16 +152,6 @@ def gen_prediction(param, feat_folder, feat_name, trial_counters, logloss_cv_mea
 ####################
 ## Model Buliding ##
 ####################
-'''
-def check_model(models, feat_name):
-    if models == "all":
-        return True
-    for model in models:
-        if model in feat_name:
-            return True
-    return False
-'''
-
 if __name__ == "__main__":
 
 
