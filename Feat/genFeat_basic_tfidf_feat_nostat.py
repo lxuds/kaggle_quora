@@ -510,8 +510,8 @@ if __name__ == "__main__":
 
        path = "%s/All" % config.feat_folder
 
-       #for vec_type in vec_types:
-       for vec_type in ["tfidf"]:
+       for vec_type in vec_types:
+       #for vec_type in ["tfidf"]:
            print "*** Processing vector: %s" % vec_type
            feat_names = [ "question1", "question2" ]
            feat_names = [ name+"_%s_%s_vocabulary" % (vec_type, vocabulary_type) for name in feat_names ]
@@ -527,8 +527,8 @@ if __name__ == "__main__":
 
            print ("------------------------------------------")
            print vec_type, "**svd features"
-           #for n_components in svd_n_components:
-           for n_components in [100]:
+           for n_components in svd_n_components:
+           #for n_components in [100]:
                print "## n_components:", n_components
                svd_vec = load_common_svd_transformer(path, feat_names, n_components)
                #svd_individual_vec =  load_individual_svd_transformer()
@@ -547,8 +547,8 @@ if __name__ == "__main__":
            for i in Ntest:
                mode = "test.%s"%str(i)
                extract_basic_vec_cosine_sim_feat_testing(path, mode, feat_names)
-               #for n_components in svd_n_components:
-               for n_components in [150]:
+               for n_components in svd_n_components:
+               #for n_components in [150]:
                    extract_common_svd_cosine_sim_feat_testing(path, mode, feat_names, n_components)
 
            print ("----time elapsed----", str(timedelta(seconds=time.time() - start_time)))
