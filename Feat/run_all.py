@@ -22,73 +22,103 @@ import os
 #### preprocess data
 
 
-output = "stdbuf -oL "
-'''
-cmd = "python ./preprocess.py"
+cmd = "python ./preprocess_test.py"
 os.system(cmd)
+
+cmd = "python ./preprocess_train.py"
+os.system(cmd)
+
 
 # #### generate kfold
 cmd = "python ./gen_kfold.py"
 os.system(cmd)
 
+cmd = "python ./gen_info.py"
+os.system(cmd)
+
 #######################
 ## Generate features ##
 #######################
-#### query id 
 output = "stdbuf -oL "
-#cmd = output +"python ./genFeat_id_feat.py > ./log_output/log_idfeat 2>./log_output/log_idfeat_err"
-#os.system(cmd)
 
-
-cmd = output +"python ./genFeat_question_feat.py > ./log_output/log_qestionfeat 2>./log_output/log_questionfeat_err"
+####  question feature
+cmd = "stdbuf -oL python ./genFeat_question_feat.py Training > ./log_output/log_qestionfeat_training 2>./log_output/log_questionfeat_training_err"
 os.system(cmd)
-
+cmd = "stdbuf -oL python ./genFeat_question_feat.py Testing > ./log_output/log_qestionfeat_training 2>./log_output/log_questionfeat_testing_err"
+os.system(cmd)
 print "question feature done"
-#### counting feat
-cmd = output + "python ./genFeat_counting_feat.py > ./log_output/log_countingfeat 2>./log_output/log_countingfeat_err"
-os.system(cmd)
 
+
+#### counting feat
+cmd = "stdbuf -oL python ./genFeat_counting_feat.py Training  > ./log_output/log_countingfeat_training 2>./log_output/log_countingfeat_training_err"
+os.system(cmd)
+cmd = "stdbuf -oL python ./genFeat_counting_feat.py Testing All > ./log_output/log_countingfeat_testing 2>./log_output/log_countingfeat_testing_err"
+os.system(cmd)
 print "counting feature done"
+
 #### distance feat
-cmd = output +  "python ./genFeat_distance_feat.py > ./log_output/log_distfeat 2>./log_output/log_distfeat_err" 
+cmd = "stdbuf -oL python ./genFeat_distance_feat.py Training > ./log_output/log_distfeat_training  2>./log_output/log_distfeat_training_err"
+os.system(cmd)
+cmd = "stdbuf -oL python ./genFeat_distance_feat.py Testing All > ./log_output/log_distfeat_testing  2>./log_output/log_distfeat_testing_err" 
 os.system(cmd)
 print "distance feature done"
 
-#### basic tfidf genFeat_basic_tfidf_feat_sim_hybrid.py
-cmd = output + "python ./genFeat_basic_tfidf_feat_sim_hybrid.py > ./log_output/log_tfidffeat 2>./log_output/log_tfidffeat_err"
+#### tfidf/bow and SVD feat
+cmd = "stdbuf -oL python ./genFeat_basic_tfidf_feat_sim_hybrid.py Training > ./log_output/log_tfidffeat_training 2>./log_output/log_tfidffeat_training_err"
+os.system(cmd)
+cmd = "stdbuf -oL python ./genFeat_basic_tfidf_feat_sim_hybrid.py Testing All > ./log_output/log_tfidffeat_testing 2>./log_output/log_tfidffeat_testing_err"
 os.system(cmd)
 print "basic tfidf feature done"
-#stdbuf -oL python genFeat_basic_tfidf_feat_sim_hybrid.py "Training" > ./log_output/log_tfidffeat1 2>./log_output/log_tfidffeat_err
 
+'''
+# work in progress
 #### cooccurrence tfidf
-cmd = output + "python ./genFeat_cooccurrence_tfidf_feat.py  > ./log_output/log_coocfeat 2>./log_output/log_coocfeat_err"
+cmd = "stdbuf -oL python ./genFeat_cooccurrence_tfidf_feat.py Training  > ./log_output/log_coocfeat_training 2>./log_output/log_coocfeat_training_err"
+os.system(cmd)
+cmd = "stdbuf -oL python ./genFeat_cooccurrence_tfidf_feat.py Testing All  > ./log_output/log_coocfeat_training 2>./log_output/log_coocfeat_testing_err"
 os.system(cmd)
 print "coocurrence feature done"
-
-print "feature extraction done"
 '''
+print "feature extraction done"
+
+
 #####################
 ## Combine Feature ##
 #####################
 #### combine feat
 
-cmd = output + "python ./combine_feat_LSA_and_stats_feat_Low.py > ./log_output/log_combine_feat_[LSA_and_stats_feat_May19]_[Low] 2>./log_output/log_err_combine_feat_[LSA_and_stats_feat_May19]_[Low]"
 print "Combining feature LSA_and_stats_feat_May19 Low"
+cmd = "stdbuf -oL python ./combine_feat_LSA_and_stats_feat_low.py Training > ./log_output/log_combine_feat_LSA_and_stats_feat_Low_traning 2>./log_output/log_combine_feat_LSA_and_stats_feat_Low_training_err"
 os.system(cmd)
-
+cmd = "stdbuf -oL python ./combine_feat_LSA_and_stats_feat_low.py Testing All > ./log_output/log_combine_feat_LSA_and_stats_feat_Low_testing 2>./log_output/log_combine_feat_LSA_and_stats_feat_Low_testing_err"
+os.system(cmd)
+print "Combining feature LSA_and_stats_feat_May19 Low Done"
 
 #### combine feat
-cmd = output +  "python ./combine_feat_[LSA_svd150_and_Jaccard_coef_May19]_[Low].py > ./log_output/log_combine_feat_[LSA_svd150_and_Jaccard_coef_May19]_[Low] 2>./log_output/log_err_combine_feat_[LSA_svd150_and_Jaccard_coef_May19]_[Low]"
+
 print "Combining feature LSA_svd150_and_Jaccard_coef Low"
+cmd = "stdbuf -oL python ./combine_feat_LSA_svd150_and_Jaccard_coef_low.py Training > ./log_output/log_combine_feat_LSA_svd150_and_Jaccard_coef_Low_training 2>./log_output/log_combine_feat_LSA_svd150_and_Jaccard_coef_Low_training_err"
 os.system(cmd)
+cmd = "stdbuf -oL python ./combine_feat_LSA_svd150_and_Jaccard_coef_low.py > ./log_output/log_combine_feat_LSA_svd150_and_Jaccard_coef_Low 2>./log_output/log_combine_feat_LSA_svd150_and_Jaccard_coef_Low_err"
+os.system(cmd)
+print "Combining feature LSA_svd150_and_Jaccard_coef Low Done"
+
 
 #### combine feat
-cmd = output + "python ./combine_feat_[svd100_and_bow_May19]_[Low].py > ./log_output/log_combine_feat_[svd100_and_bow_May19]_[Low] 2> ./log_output/log_combine_feat_[svd100_and_bow_May19]_[Low]"
-print "Combining feature svd100_and_bow_May19]_[Low]"
+print "Combining feature svd100_and_bow_Low"
+cmd = "stdbuf -oL python ./combine_feat_svd100_and_bow_low.py Training > ./log_output/log_combine_feat_svd100_and_bow_Low_training 2> ./log_output/log_combine_feat_svd100_and_bow_Low_training_err"
 os.system(cmd)
+cmd = "stdbuf -oL python ./combine_feat_svd100_and_bow_low.py Testing All> ./log_output/log_combine_feat_svd100_and_bow_Low 2> ./log_output/log_combine_feat_svd100_and_bow_Low_testing_err"
+os.system(cmd)
+print "Combining feature svd100_and_bow_Low Done"
+
+
 
 #### combine feat
-cmd = output + "python ./combine_feat_[svd100_and_bow_May19]_[High].py > ./log_output/log_combine_feat_[svd100_and_bow_May19]_[High] 2> ./log_output/log_err_combine_feat_[svd100_and_bow_May19]_[High]"
-print "Combining feature svd100_and_bow_May19]_[High"
-os.system(cmd)
 
+print "Combining feature svd100_and_bow_High"
+cmd = "stdbuf -oL python ./combine_feat_svd100_and_bow_high.py Training > ./log_output/log_combine_feat_svd100_and_bow_High 2> ./log_output/log_combine_feat_svd100_and_bow_High_traning_err"
+os.system(cmd)
+cmd = "stdbuf -oL python ./combine_feat_svd100_and_bow_high.py Testing All > ./log_output/log_combine_feat_svd100_and_bow_High 2> ./log_output/log_combine_feat_svd100_and_bow_High_testing_err"
+os.system(cmd)
+print "Combining feature svd100_and_bow_High Done"
