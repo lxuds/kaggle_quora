@@ -59,8 +59,6 @@ output_path = "../../Output"
 bootstrap_ratio = 1
 bootstrap_replacement = False
 bagging_size=  1
-
-ebc_hard_threshold = False
 verbose_level = 1
 
 
@@ -72,7 +70,6 @@ def find_majority(votes):
 
 
 #### warpper for hyperopt for logging the training reslut
-# adopted from
 #
 def hyperopt_wrapper(param, feat_folder, feat_name):
     global trial_counter
