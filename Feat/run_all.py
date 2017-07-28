@@ -39,7 +39,10 @@ os.system(cmd)
 #######################
 ## Generate features ##
 #######################
-output = "stdbuf -oL "
+
+
+if not os.path.exists('./log_output'):
+    os.makedirs('./log_output')
 
 ####  question feature
 cmd = "stdbuf -oL python ./genFeat_question_feat.py Training > ./log_output/log_qestionfeat_training 2>./log_output/log_questionfeat_training_err"
