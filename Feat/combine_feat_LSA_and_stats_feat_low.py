@@ -27,12 +27,6 @@ if __name__ == "__main__":
 
     feat_names = [
 
-        ##############
-        ## Query id ##
-        ##############
-#        ("qid1", SimpleTransform()),
-#        ("qid2", SimpleTransform()),
-
 
         ################
         ## Question   ##

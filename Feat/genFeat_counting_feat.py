@@ -109,15 +109,10 @@ def extract_feat(df):
         for gram in grams:
             ## word count
             df["count_of_%s_%s"%(feat_name,gram)] = [len(x) for x in df[feat_name+"_"+gram]]
-#            df["count_of_%s_%s"%(feat_name,gram)] = list(map(len, df[feat_name+"_"+gram))
-#            df["count_of_unique_%s_%s"%(feat_name,gram)] = list(map(lambda x: len(set(x)),df[feat_name+"_"+gram] )) 
             df["count_of_unique_%s_%s"%(feat_name,gram)] = [len(set(x)) for x in df[feat_name+"_"+gram]]
-                                                                    
             df["ratio_of_unique_%s_%s"%(feat_name,gram)] = map(try_divide, df["count_of_unique_%s_%s"%(feat_name,gram)], df["count_of_%s_%s"%(feat_name,gram)])
 
         ## digit count
-#        df["count_of_digit_in_%s"%feat_name] = [count_digit(x) for x in df[feat_name+"_unigram"]]
-        #list(df.apply(lambda x: count_digit(x[feat_name+"_unigram"]), axis=1))
         df["count_of_digit_in_%s"%feat_name] = list(map(count_digit, df[feat_name+"_unigram"]))                                                               
         df["ratio_of_digit_in_%s"%feat_name] = map(try_divide, df["count_of_digit_in_%s"%feat_name], df["count_of_%s_unigram"%(feat_name)])
 
@@ -142,7 +137,6 @@ def extract_feat(df):
                 if target_name != obs_name:
                     ## query
                     df["count_of_%s_%s_in_%s"%(obs_name,gram,target_name)] = list(map(word_count_intersect_questions, df[obs_name+"_"+gram], df[target_name+"_"+gram]))
-                    #list(df.apply(lambda x: sum([1. for w in x[obs_name+"_"+gram] if w in set(x[target_name+"_"+gram])]), axis=1))
                     df["ratio_of_%s_%s_in_%s"%(obs_name,gram,target_name)] = map(try_divide, df["count_of_%s_%s_in_%s"%(obs_name,gram,target_name)], df["count_of_%s_%s"%(obs_name,gram)])
 
         ## some other feat
@@ -227,8 +221,6 @@ if __name__ == "__main__":
        '''
        print("For cross-validation...")
        for run in range(config.n_runs):
-           ## use 33% for training and 67 % for validation
-           ## so we switch trainInd and validInd
            for fold, (trainInd, validInd) in enumerate(skf[run]):
                print("Run: %d, Fold: %d" % (run+1, fold+1))
                path = "%s/Run%d/Fold%d" % (config.feat_folder, run+1, fold+1)

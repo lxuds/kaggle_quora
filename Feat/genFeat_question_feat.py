@@ -207,8 +207,6 @@ if __name__ == "__main__":
                for feat_name in feat_names:
                    X_train = x[feat_name].values[trainInd]
                    X_valid = x[feat_name].values[validInd]
-                   #print X_train.shape
-                   #print X_valid.shape
                    with open("%s/train.%s.feat.pkl" % (path, feat_name), "wb") as f:
                         cPickle.dump(X_train, f, -1)
                    with open("%s/valid.%s.feat.pkl" % (path, feat_name), "wb") as f:
@@ -217,10 +215,6 @@ if __name__ == "__main__":
        print("Feature names are stored in %s" % feat_name_file)
        ## dump feat name
        dump_feat_name(feat_names, feat_name_file)
-       #path = "%s/All" % config.feat_folder
-       #with open("%s/train.%s.feat.pkl" % (path, feat_name), "wb") as f:
-       #     cPickle.dump(x, f, -1) 
-#       print("--- %s minutes ---" % ((time.time() - start_time)/60))
        print ("----time elapsed----", str(timedelta(seconds=time.time() - start_time)))
        print("Done.")
 

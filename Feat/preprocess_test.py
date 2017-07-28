@@ -1,6 +1,3 @@
-#usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """
 __file__
 
@@ -26,7 +23,6 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 from textacy.preprocess import replace_currency_symbols, normalize_whitespace
 import re
-#from feat_utils import try_divide, dump_feat_name
 
 ###############
 ## Load Data ##
@@ -34,7 +30,6 @@ import re
 print("Load data...")
 
 
-#dfTrain = pd.read_csv(config.original_train_data_path,encoding='utf8').fillna("")
 dfTest = pd.read_csv(config.original_test_data_path,encoding='utf8').fillna("")
 
 # number of test samples
@@ -88,13 +83,4 @@ print("Save data...")
 
 print("Done.")
 
-"""
-## pos tag text
-dfTrain = dfTrain.apply(pos_tag_text, axis=1)
-dfTest = dfTest.apply(pos_tag_text, axis=1)
-with open(config.pos_tagged_train_data_path, "wb") as f:
-    cPickle.dump(dfTrain, f, -1)
-with open(config.pos_tagged_test_data_path, "wb") as f:
-    cPickle.dump(dfTest, f, -1)
-print("Done.")
-"""
+

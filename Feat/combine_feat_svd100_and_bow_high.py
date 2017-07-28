@@ -28,8 +28,6 @@ if __name__ == "__main__":
 
     feat_names = [
 
-        # ## id feat
-#        ("qid", SimpleTransform()),
 
         ################
         ## Question   ##

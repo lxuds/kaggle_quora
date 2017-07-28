@@ -14,6 +14,7 @@ __author__
 
 """
 
+import time
 import os
 import sys
 import cPickle
@@ -24,7 +25,6 @@ from sklearn.base import BaseEstimator
 from sklearn.datasets import dump_svmlight_file
 sys.path.append("../")
 from param_config import config
-import time
 from datetime import timedelta
 
 
