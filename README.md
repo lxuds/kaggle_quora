@@ -35,7 +35,7 @@ In the folder Feat:
 - combine_feat_svd100_and_bow_high.py: This file generates one combination of feature set.
 - combine_feat_svd100_and_bow_low.py: This file generates one combination of feature set.
 - combine_feat.py: This file combines features and save them in svmlight format.
-- feat_utils.py: This file providesutils for generating features.
+- feat_utils.py: This file provides utils for generating features.
 - ngram.py: This file generates n-grams.
 - nlp_utils.py: This file provides functions for NLP tasks.
 - replacer.py: This file provides functions for words replacement.
