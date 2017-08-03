@@ -1,8 +1,10 @@
 In this Quora Question Pairs competition, we were asked to build an advanced model to classify whether question pairs are duplicates or not.
 
-Data: The traning sets include 404,290 labeled question pairs, and the testing sets include 2,345,796 question pairs. You may download the data at https://www.kaggle.com/c/quora-question-pairs.
+Data: The traning sets include 404,290 labeled question pairs, and the testing sets include 2,345,796 question pairs. You may download the data at https://www.kaggle.com/c/quora-question-pairs. The size of the testing sets is about six times large as training sets. Due to the limited hardware resources, we splitted the testing sets into smaller subsets to run through the whole code.  
 
-The solution includes two sections: feature engineering (in Feat) and model ensembling (in Model). The feature engineering part was invloved with various natural language processing techniques. In model ensembling section, we employed Hyperopt package to find the best parameter settings for various algorithms, and built a model library with thousands of models of various hyper-parameters. We finally used bagging ensemble selection to find the best model ensemble from the model library.
+The evaluation metric of theis project is Log loss (http://www.exegetic.biz/blog/2015/12/making-sense-logarithmic-loss/). The model objective is to minimise Log Loss.
+
+The solution includes two sections: feature engineering (in Feat) and model ensembling (in Model). The feature engineering part was invloved with various natural language processing techniques. In model ensembling section, we employed Hyperopt package to find the best parameter settings for various algorithms, and built a model library with thousands of models of various hyper-parameters. We finally used bagging ensemble selection to find the best model ensemble from the model library. 
 
 Before feature engineering, we first preprocessed the data. We performed word replacement and alignments, e.g., replacing contractions, currency symbols, and units with standard forms. We removed accent and punctuation. We also performed Porter stemming before generating word counting and BOW/TF-IDF features. The NLTK (Natural Language Toolkit and Scikit-learn) and Regular Expression module in Python were heavily used in this process.
 
@@ -11,11 +13,11 @@ We then proceeded to extract and select features:
 - Distance Features: plain jaccard coefficient/dice distance for the unigram/bigram/trigram of each question pair
 - Basic TF-IDF/BOW features for each question pair: We used common vocabulary among question1/question2 for further computation of cosine similarity. We computed the plain cosine similarity for each question pair, and SVD version of the above features
 - Question features: count of interrogative words, auxiliary verbs and question marks
-- cooccurrence features: TF-IDF for the following cooccurrence terms: question1 unigram/bigram & question2 unigram/bigram (work in progress)
+- Cooccurrence features: TF-IDF for the following cooccurrence terms: question1 unigram/bigram & question2 unigram/bigram (work in progress)
 
 In this section, NLTK and Sklearn packages were employed.
 
-In model ensembling selection, we first employed Hyperopt package (a parameter searching algorithm) to build a model library with models of various algorithms (e.g., SVM, GBDT, RF), or the same models of various hyper-parameters. The hyper-parameter searching process not only found the best hyper-parameter for the model (corresponding to the best single model), but also helped build a model library with model of various parameters that can later be used in ensemble selection to further boost the performance of the best single model. We then used bagging ensemble selection to find the best model ensemble, and make prediction on the testing sets.
+In model ensembling selection, we first employed Hyperopt package (a parameter searching algorithm) to build a model library with models of various algorithms (e.g., SVM, GBDT, RF), or the same models of various hyper-parameters. The hyper-parameter searching process not only found the best hyper-parameter for the model (corresponding to the best single model), but also helped build a model library with model of various parameters that can later be used in ensemble selection to further boost the performance of the best single model. We then used bagging ensemble selection to find the best model ensemble and make prediction on the testing sets.
 
 Code Description: 
 
@@ -52,3 +54,10 @@ In the folder Model:
 - ensemble_selection_predict.py: This file uses trained ensemble model to generate predictions on the testing sets.
 - model_library_config.py: This file provides model library configurations for ensemble selection.
 - utils.py: This file provides function to convert probabilities to class.
+
+How To Generate the Solution:
+- 1. run python ./Feat/run_all.py to generate feature set. 
+- 2. run python ./Model/generate_best_single_model.py to generate the best single model submission.
+- 3. run python ./Model/generate_model_library.py to generate model library.
+- 4. run python ./Model/generate_ensemble_train.py to train the bagging ensemble model.
+- 5. run python ./Model/ensemble_selection_predict.py to generate predictions via ensemble selection.
