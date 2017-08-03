@@ -2,7 +2,7 @@ In this Quora Question Pairs competition, we were asked to build an advanced mod
 
 Data: The traning sets include 404,290 labeled question pairs, and the testing sets include 2,345,796 question pairs. You may download the data at https://www.kaggle.com/c/quora-question-pairs. The size of the testing sets is about six times large as training sets. Due to the limited hardware resources, we splitted the testing sets into smaller subsets to run through the whole code.  
 
-The evaluation metric of theis project is Log loss (http://www.exegetic.biz/blog/2015/12/making-sense-logarithmic-loss/). The model objective is to minimise Log Loss.
+The evaluation metric of this project is Log loss (http://www.exegetic.biz/blog/2015/12/making-sense-logarithmic-loss/). The model objective is to minimise Log Loss. Smaller logloss is better. 0 represents a perfect logloss.
 
 The solution includes two sections: feature engineering (in Feat) and model ensembling (in Model). The feature engineering part was invloved with various natural language processing techniques. In model ensembling section, we employed Hyperopt package to find the best parameter settings for various algorithms, and built a model library with thousands of models of various hyper-parameters. We finally used bagging ensemble selection to find the best model ensemble from the model library. 
 
