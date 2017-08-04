@@ -4,7 +4,7 @@ Data: The traning sets include 404,290 labeled question pairs, and the testing s
 
 The evaluation metric of this project is Log loss (http://www.exegetic.biz/blog/2015/12/making-sense-logarithmic-loss/). The model objective is to minimise Log Loss. Smaller Log loss is better. 0 represents a perfect Log loss.
 
-The solution includes two sections: feature engineering (in Feat) and model ensembling (in Model). The feature engineering part was invloved with various natural language processing techniques. In model ensembling section, we employed Hyperopt package to find the best parameter settings for various algorithms, and built a model library with thousands of models of various hyper-parameters. We finally used bagging ensemble selection to find the best model ensemble from the model library. 
+The solution includes two sections: feature engineering (in Feat) and model ensembling (in Model). In feature engineering section, we used various natural language processing techniques to extract and select features. In model ensembling section, we employed Hyperopt package to find the best parameter settings for various algorithms, and built a model library with thousands of models of various hyper-parameters. We finally used bagging ensemble selection to find the best model ensemble from the model library. 
 
 Before feature engineering, we first preprocessed the data. We performed word replacement and alignments, e.g., replacing contractions, currency symbols, and units with standard forms. We removed accent and punctuation. We also performed Porter stemming before generating word counting and BOW/TF-IDF features. The NLTK (Natural Language Toolkit and Scikit-learn) and Regular Expression module in Python were heavily used in this process.
 
