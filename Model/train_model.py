@@ -62,13 +62,6 @@ bagging_size=  1
 verbose_level = 1
 
 
-
-def find_majority(votes):
-    vote_count = Counter(votes)
-    top_two = vote_count.most_common(2)
-    return top_two[0][0]
-
-
 #### warpper for hyperopt for logging the training reslut
 #
 def hyperopt_wrapper(param, feat_folder, feat_name):
@@ -373,7 +366,7 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
             clf = LogisticRegression(penalty="l1", dual=True, tol=1e-5, solver ="liblinear",
                                     C=param['C'], fit_intercept=True, intercept_scaling=1.0,
                                     class_weight='auto', random_state=param['random_state'])
-            clf.fit(X_train[index_base], labels_train[index_base])
+            clf.fit(X_train[index_base], labels_train[index_base])   
 
         elif param['task'] == "reg_skl_svr":
             ## regression with sklearn support vector regression
