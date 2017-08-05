@@ -10,8 +10,8 @@ __description__
     This file provides functions to compute n-gram & n-term.
 
 __author__
-    Adapted from Chenglong Chen Crowdflower Codes
-    Chenglong Chen < c.chenglong@gmail.com >
+
+    Adopted from Chenglong Chen Crowdflower Codes
 
 """
 
