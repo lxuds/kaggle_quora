@@ -10,8 +10,8 @@ __description__
     Such functions are adopted from "Python Text Processing with NLTK 2.0 Cookbook," Chapter 2, Page 39-43.
 
 __author__
+
     Adopted from Chenglong Chen Crowdflower project
-    Chenglong Chen < c.chenglong@gmail.com >
 
 """
 
