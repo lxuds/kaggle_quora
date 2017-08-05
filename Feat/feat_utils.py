@@ -9,9 +9,9 @@ __description__
 	This file provides utils for generating features.
 
 __author__
-        Adapted from Chenglong Chen Crowdflower project
-	Chenglong Chen < c.chenglong@gmail.com >
 
+        Adoptedfrom Chenglong Chen Crowdflower project
+	
 """
 
 
