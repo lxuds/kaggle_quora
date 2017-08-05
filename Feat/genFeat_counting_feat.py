@@ -86,8 +86,7 @@ def extract_feat(df):
     join_str = "_"
 
     print "generate ngrams for question1"
-    df.loc[:,"question1_unigram"] = list(map(preprocess_data, df["question1"]))#[preprocess_data(x) for x in df["question1"]]
-    
+    df.loc[:,"question1_unigram"] = list(map(preprocess_data, df["question1"]))
     df.loc[:,"question1_bigram"] = [ngram.getBigram(x, join_str) for x in df["question1_unigram"]]
     df.loc[:,"question1_trigram"] = [ngram.getTrigram(x, join_str) for x in df["question1_unigram"]]
 
@@ -152,7 +151,6 @@ def extract_feat(df):
         for target_name in feat_names:
             for obs_name in feat_names:
                 if target_name != obs_name:
-#                    pos = list(df.apply(lambda x: get_position_list(x[target_name+"_"+gram], obs=x[obs_name+"_"+gram]), axis=1))
                     pos = list(map(get_position_list, df[obs_name+"_"+gram], df[target_name+"_"+gram]))
                     ## stats feat on pos
                     df["pos_of_%s_%s_in_%s_min" % (obs_name, gram, target_name)] = map(np.min, pos)
