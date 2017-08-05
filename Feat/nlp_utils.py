@@ -14,7 +14,8 @@ __description__
 __author__
 
     Lei Xu < leixuast@gmail.com >
-    part of it was adapted from Chenglong Chen's Crowdflower project
+    part of it was adopted from Chenglong Chen's Crowdflower project
+    
 """
 import re
 import sys
