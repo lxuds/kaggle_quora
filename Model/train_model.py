@@ -36,15 +36,26 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import log_loss
+from sklearn.externals import joblib
+
 ## hyperopt
 from hyperopt import hp
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
+## keras
+from keras.models import Sequential
+from keras.layers.core import Dense, Dropout, Activation
+from keras.layers.normalization import BatchNormalization
+from keras.layers.advanced_activations import PReLU
+from keras.utils import np_utils, generic_utils
+from keras.models import load_model
+
 ## cutomized module
 from model_library_config import feat_folders, feat_names, param_spaces, int_feat
 sys.path.append("../")
 from param_config import config
 from utils import proba2class
 from collections import Counter
+
 
 
 
@@ -129,7 +140,7 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
 
             # save trained model 
             cross_validation_model_path = "%s/%s_[Id@%d].pkl" % (save_model_path, feat_name, trial_counter)
-
+            cross_validation_model_scaler_path = "%s/%s_[Id@%d]_standardscaler.pkl" % (save_model_path, feat_name, trial_counter)
 
             ## load feat
             X_train, labels_train = load_svmlight_file(feat_train_path)
@@ -173,7 +184,7 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
                     pred_proba = clf.predict(dvalid_base)
 
                 elif param['task'] == "reg_skl_rf":
-                    ## regression with sklearn random forest regressor
+                    ## classification with sklearn random forest regressor
                     clf = RandomForestClassifier(n_estimators=param['n_estimators'],
                                                max_features=param['max_features'],
                                                n_jobs=param['n_jobs'],
@@ -184,7 +195,7 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
                    
 
                 elif param['task'] == "reg_skl_etr":
-                    ## regression with sklearn extra trees regressor
+                    ## classification with sklearn extra trees regressor
                     clf = ExtraTreesClassifier(n_estimators=param['n_estimators'],
                                               max_features=param['max_features'],
                                               n_jobs=param['n_jobs'],
@@ -193,7 +204,7 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
                     pred_proba = clf.predict_proba(X_valid)[:,1]
 
                 elif param['task'] == "reg_skl_gbm":
-                    ## regression with sklearn gradient boosting regressor
+                    ## classification with sklearn gradient boosting regressor
                     clf = GradientBoostingClassifier(n_estimators=param['n_estimators'],
                                                     max_features=param['max_features'],
                                                     learning_rate=param['learning_rate'],
@@ -222,10 +233,12 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
 
 
                 elif param['task'] == "reg_skl_svr":
-                    ## regression with sklearn support vector regression
+                    ## classification with sklearn support vector regression
                     X_train, X_valid = X_train.toarray(), X_valid.toarray()
                     scaler = StandardScaler()
                     X_train[index_base] = scaler.fit_transform(X_train[index_base])
+                    # save standard scaler
+                    joblib.dump(scalar, cross_validation_model_scaler_path)
                     X_valid = scaler.transform(X_valid)
                     clf = SVC(C=param['C'], gamma=param['gamma'], 
                                             degree=param['degree'], kernel=param['kernel'], probability=True)
@@ -233,11 +246,64 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
                     pred_proba = clf.predict_proba(X_valid)[:,1]
                    
                 elif param['task'] == "reg_skl_ridge":
-                    ## regression with sklearn ridge regression
+                    ## classification with sklearn ridge regression
                     clf = RidgeClassifier(alpha=param["alpha"], normalize=True)
                     clf.fit(X_train[index_base], labels_train[index_base])
                     pred_proba = clf.predict(X_valid)
-                    
+
+                elif param['task'] == "reg_keras_dnn":
+                    ## binary classification with keras' deep neural networks
+                    model = Sequential()
+                    ## input layer
+                    model.add(Dropout(param["input_dropout"]))
+                    ## hidden layers
+                    first = True
+                    hidden_layers = param['hidden_layers']
+                    while hidden_layers > 0:
+                        if first:
+                            dim = X_train.shape[1]
+                            first = False
+                        else:
+                            dim = param["hidden_units"]
+                        model.add(Dense(dim, param["hidden_units"], init='glorot_uniform'))
+                        if param["batch_norm"]:
+                            model.add(BatchNormalization((param["hidden_units"],)))
+                        if param["hidden_activation"] == "prelu":
+                            model.add(PReLU((param["hidden_units"],)))
+                        else:
+                            model.add(Activation(param['hidden_activation']))
+                        model.add(Dropout(param["hidden_dropout"]))
+                        hidden_layers -= 1
+
+                    ## output layer
+                    model.add(Dense(param["hidden_units"], 1, init='glorot_uniform'))
+                    model.add(Activation('linear'))
+
+                    ## loss
+                    model.compile(loss='binary_crossentropy', optimizer="adam", metrics=['accuracy'])
+
+                    ## to array
+                    X_train = X_train.toarray()
+                    X_valid = X_valid.toarray()
+
+                    ## scale
+                    scaler = StandardScaler()
+                    X_train[index_base] = scaler.fit_transform(X_train[index_base])
+                    X_valid = scaler.transform(X_valid)
+                    # save standard scaler
+                    joblib.dump(scalar, cross_validation_model_scaler_path)
+
+                    ## train
+                    model.fit(X_train[index_base], labels_train[index_base]+1,
+                                nb_epoch=param['nb_epoch'], batch_size=param['batch_size'],
+                                validation_split=0, verbose=0)
+
+                    ##prediction
+                    # pred = model.predict(X_valid, verbose=0)
+                    # pred.shape = (X_valid.shape[0],)
+                    # for each sample return a single value which is a probability of the positive prediction.
+                    pred_proba = model.predict_proba(X_valid, verbose=0)
+
 
                 ## this bagging iteration
                 preds_bagging[:,n] = pred_proba
@@ -255,9 +321,15 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
                 ### saving the training results on the training folds
                 ### no bagging here
                 ### saving the trained model
-                with open(cross_validation_model_path, "wb") as f:
-                    cPickle.dump(clf, f, -1)
 
+
+                # save the retrained classifer result
+                if param['task'] == "reg_keras_dnn":
+                    model.save(cross_validation_model_path)  # creates a HDF5 file 
+                else:
+                    with open(cross_validation_model_path, "wb") as f:
+                        cPickle.dump(clf, f, -1)
+        
             logloss_cv[run-1,fold-1] = logloss_valid
             ## save this prediction
             #print raw_pred_valid_path
@@ -298,6 +370,7 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
     feat_train_path = "%s/train.feat" % path
     # save trained model
     all_training_model_path = "%s/%s_[Id@%d].pkl" % (save_model_path, feat_name, trial_counter)
+    all_training_model_scaler_path = "%s/%s_[Id@%d]_standardscaler.pkl" % (save_model_path, feat_name, trial_counter)
 
     #### load data
     X_train, labels_train = load_svmlight_file(feat_train_path)
@@ -369,20 +442,74 @@ def hyperopt_obj(param, feat_folder, feat_name, trial_counter):
             clf.fit(X_train[index_base], labels_train[index_base])   
 
         elif param['task'] == "reg_skl_svr":
-            ## regression with sklearn support vector regression
+            ## classification with sklearn support vector regression
             X_train = X_train.toarray()
             scaler = StandardScaler()
             X_train[index_base] = scaler.fit_transform(X_train[index_base])
             clf = SVC(C=param['C'], gamma=param['gamma'],
                                     degree=param['degree'], kernel=param['kernel'])
             clf.fit(X_train[index_base], labels_train[index_base])
+            # save standard scaler
+            joblib.dump(scalar, all_training_model_scaler_path) 
 
         elif param['task'] == "reg_skl_ridge":
             clf = RidgeClassifier(alpha=param["alpha"], normalize=True)
             clf.fit(X_train[index_base], labels_train[index_base])
+
+
+        elif param['task'] == "reg_keras_dnn":
+            ## binary classification with keras' deep neural networks
+            model = Sequential()
+            ## input layer
+            model.add(Dropout(param["input_dropout"]))
+            ## hidden layers
+            first = True
+            hidden_layers = param['hidden_layers']
+            while hidden_layers > 0:
+                if first:
+                    dim = X_train.shape[1]
+                    first = False
+                else:
+                    dim = param["hidden_units"]
+                model.add(Dense(dim, param["hidden_units"], init='glorot_uniform'))
+                if param["batch_norm"]:
+                    model.add(BatchNormalization((param["hidden_units"],)))
+                if param["hidden_activation"] == "prelu":
+                    model.add(PReLU((param["hidden_units"],)))
+                else:
+                    model.add(Activation(param['hidden_activation']))
+                model.add(Dropout(param["hidden_dropout"]))
+                hidden_layers -= 1
+
+            ## output layer
+            model.add(Dense(param["hidden_units"], 1, init='glorot_uniform'))
+            model.add(Activation('linear'))
+
+            ## loss
+            model.compile(loss='binary_crossentropy', optimizer="adam", metrics=['accuracy'])
+
+            ## to array
+            X_train = X_train.toarray()
+
+            ## scale
+            scaler = StandardScaler()
+            X_train[index_base] = scaler.fit_transform(X_train[index_base])
+            # save standard scaler
+            joblib.dump(scalar, all_training_model_scaler_path)
+
+
+            ## train
+            model.fit(X_train[index_base], labels_train[index_base]+1,
+                        nb_epoch=param['nb_epoch'], batch_size=param['batch_size'],
+                        validation_split=0, verbose=0)
+
+
     # save the retrained classifer result
-    with open(all_training_model_path, "wb") as f:
-        cPickle.dump(clf, f, -1)
+    if param['task'] == "reg_keras_dnn":
+        model.save(all_training_model_path)  
+    else:
+        with open(all_training_model_path, "wb") as f:
+            cPickle.dump(clf, f, -1)
     #no bagging used for retraining 
        
 
