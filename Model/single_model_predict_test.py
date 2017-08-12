@@ -35,6 +35,15 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import log_loss
+from sklearn.externals import joblib
+## keras
+from keras.models import Sequential
+from keras.layers.core import Dense, Dropout, Activation
+from keras.layers.normalization import BatchNormalization
+from keras.layers.advanced_activations import PReLU
+from keras.utils import np_utils, generic_utils
+from keras.models import load_model
+
 
 ## hyperopt
 from hyperopt import hp
@@ -85,24 +94,42 @@ def gen_prediction(param, feat_folder, feat_name, trial_counters, logloss_cv_mea
                 ## load model
                 save_model_path = "%s/Model/Run%d/Fold%d" % (output_path, run, fold)
                 cross_validation_model_path = "%s/%s_[Id@%d].pkl" % (save_model_path, feat_name, trial_counter)
-                with open(cross_validation_model_path, 'rb') as f:
-                    clf = cPickle.load(f)
-                   
-                if "booster" in param:
-                    dtest = xgb.DMatrix(X_test, label=labels_test)
-     
-                ## various models
-                if param["task"] in ["regression"]:
-                    ## classification  xgboost
-                    pred_proba = clf.predict(dtest)
-     
-                elif param['task'] in ["reg_skl_rf", "reg_skl_etr", "reg_skl_gbm", "clf_skl_lr_l1",
-                                        "clf_skl_lr_l1", "reg_skl_svr"]:
-                    pred_proba = clf.predict_proba(X_test)[:,1]
-                   
-                elif param['task'] == "reg_skl_ridge":
-                    pred_proba = clf.predict(X_test)
-                    
+                cross_validation_model_scaler_path = "%s/%s_[Id@%d]_standardscaler.pkl" % (save_model_path, feat_name, trial_counter)
+
+                if param['task'] == "reg_keras_dnn":
+                    X_test = X_test.toarray()
+                    scaler = joblib.load(cross_validation_model_scaler_path)
+                    X_test = scaler.transform(X_test)
+                    model = load_model(cross_validation_model_path)
+
+                    pred_proba = model.predict(X_test, verbose=0)  
+                    # for binary classifcation, keras.model.predict return the probability of the positive category 
+
+                else:
+                    with open(cross_validation_model_path, 'rb') as f:
+                        clf = cPickle.load(f)
+                       
+                    if "booster" in param:
+                        dtest = xgb.DMatrix(X_test, label=labels_test)
+         
+                    ## various models
+                    if param["task"] in ["regression"]:
+                        ## classification  xgboost
+                        pred_proba = clf.predict(dtest)
+         
+                    elif param['task'] in ["reg_skl_rf", "reg_skl_etr", "reg_skl_gbm", "clf_skl_lr_l1",
+                                            "clf_skl_lr_l1"]:
+                        pred_proba = clf.predict_proba(X_test)[:,1]
+                       
+                    elif param['task'] == "reg_skl_ridge":
+                        pred_proba = clf.predict(X_test)
+ 
+                    elif param['task'] == "reg_skl_svr":               
+                        X_test = X_test.toarray()
+                        scaler = joblib.load(cross_validation_model_scaler_path)
+                        X_test = scaler.transform(X_test)
+                        pred_proba = clf.predict_proba(X_test)[:,1]                     
+
                 #pred_class = proba2class(pred_proba)              
                 pred_folds[run-1,fold-1,:] = pred_proba
                 
@@ -120,19 +147,45 @@ def gen_prediction(param, feat_folder, feat_name, trial_counters, logloss_cv_mea
         #### Using retraining on the whole training set to make predictions on testing sets 
         save_model_path = "%s/Model/All" % output_path
         all_training_model_path = "%s/%s_[Id@%d].pkl" % (save_model_path, feat_name, trial_counter)
-        ## load model
-        with open(all_training_model_path, 'rb') as f:
-            clf = cPickle.load(f)       
-        ## various models
-        if param["task"] in ["regression"]:
-            ## classification  xgboost
-            pred_proba = clf.predict(dtest)
-        elif param['task'] in ["reg_skl_rf", "reg_skl_etr", "reg_skl_gbm", "clf_skl_lr_l1",
-                                "clf_skl_lr_l1", "reg_skl_svr"]:
-            pred_proba = clf.predict_proba(X_test)[:,1]
-        elif param['task'] == "reg_skl_ridge":
-            pred_proba = clf.predict(X_test)
-     
+        all_training_model_scaler_path = "%s/%s_[Id@%d]_standardscaler.pkl" % (save_model_path, feat_name, trial_counter)
+
+
+
+        if param['task'] == "reg_keras_dnn":
+            X_test = X_test.toarray()
+            scaler = joblib.load(all_training_model_scaler_path)
+            X_test = scaler.transform(X_test)
+            model = load_model(all_training_model_path)
+
+            pred_proba = model.predict(X_test, verbose=0)
+            # for binary classifcation, keras.model.predict return the probability of the positive category
+
+        else:
+            with open(all_training_model_path, 'rb') as f:
+                clf = cPickle.load(f)
+
+            if "booster" in param:
+                dtest = xgb.DMatrix(X_test, label=labels_test)
+
+            ## various models
+            if param["task"] in ["regression"]:
+                ## classification  xgboost
+                pred_proba = clf.predict(dtest)
+
+            elif param['task'] in ["reg_skl_rf", "reg_skl_etr", "reg_skl_gbm", "clf_skl_lr_l1",
+                                    "clf_skl_lr_l1"]:
+                pred_proba = clf.predict_proba(X_test)[:,1]
+
+            elif param['task'] == "reg_skl_ridge":
+                pred_proba = clf.predict(X_test)
+
+            elif param['task'] == "reg_skl_svr":
+                X_test = X_test.toarray()
+                scaler = joblib.load(all_training_model_scaler_path)
+                X_test = scaler.transform(X_test)
+                pred_proba = clf.predict_proba(X_test)[:,1]
+
+    
         pred_all_class = proba2class(pred_proba)
         pred_all = pred_proba
         ## write

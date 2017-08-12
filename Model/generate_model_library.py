@@ -27,6 +27,7 @@ feat_names_all = [
 	"[Pre@solution]_[Feat@LSA_and_stats_feat_May19]_[Model@reg_skl_ridge]",
 	"[Pre@solution]_[Feat@LSA_and_stats_feat_May19]_[Model@clf_skl_lr]",
         "[Pre@solution]_[Feat@LSA_and_stats_feat_May19]_[Model@clf_skl_lr_l1]",
+	"[Pre@solution]_[Feat@LSA_and_stats_feat_May19]_[Model@reg_keras_dnn]",
 
 
 	## LSA_svd150_and_Jaccard_coef_May19 (Low)
@@ -39,6 +40,7 @@ feat_names_all = [
 	"[Pre@solution]_[Feat@LSA_svd150_and_Jaccard_coef_May19]_[Model@reg_skl_ridge]",
 	"[Pre@solution]_[Feat@LSA_svd150_and_Jaccard_coef_May19]_[Model@clf_skl_lr]",
         "[Pre@solution]_[Feat@LSA_svd150_and_Jaccard_coef_May19]_[Model@clf_skl_lr_l1]",
+	"[Pre@solution]_[Feat@LSA_svd150_and_Jaccard_coef_May19]_[Model@reg_keras_dnn]",
 
 	## svd100_and_bow_low_May19 (Low)
 	"[Pre@solution]_[Feat@svd100_and_bow_low_May19]_[Model@reg_xgb_tree]",
@@ -50,6 +52,7 @@ feat_names_all = [
 	"[Pre@solution]_[Feat@svd100_and_bow_low_May19]_[Model@reg_skl_ridge]",
 	"[Pre@solution]_[Feat@svd100_and_bow_low_May19]_[Model@clf_skl_lr]",
         "[Pre@solution]_[Feat@svd100_and_bow_low_May19]_[Model@clf_skl_lr_l1]",
+	"[Pre@solution]_[Feat@svd100_and_bow_low_May19]_[Model@reg_keras_dnn]",
 
 	
 	## svd100_and_bow_high_May19 (High)
