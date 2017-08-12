@@ -17,7 +17,7 @@ We then proceeded to extract and select features:
 
 In this section, NLTK and Sklearn packages were employed.
 
-In model ensembling selection, we first employed Hyperopt package (a parameter searching algorithm) to build a model library with models of various algorithms (e.g., SVM, GBDT, RF), or the same models of various hyper-parameters. The hyper-parameter searching process not only found the best hyper-parameter for the model (corresponding to the best single model), but also helped build a model library with model of various parameters that can later be used in ensemble selection to further boost the performance of the best single model. We then used bagging ensemble selection to find the best model ensemble and make prediction on the testing sets.
+In model ensembling selection, we first employed Hyperopt package (a parameter searching algorithm) to build a model library with models of various algorithms (e.g., XGBoost, Logistic Regression, Ridge, Extra Trees, deep Neural Networks with Keras/TensorFlow, SVM, GBDT, RF), or the same models of various hyper-parameters. The hyper-parameter searching process not only found the best hyper-parameter for the model (corresponding to the best single model), but also helped build a model library with model of various parameters that can later be used in ensemble selection to further boost the performance of the best single model. We then used bagging ensemble selection to find the best model ensemble and make prediction on the testing sets. During the training process, we saved trained models, scalers, and Vectorizers on disk for new testing sets.
 
 Code Description: 
 
